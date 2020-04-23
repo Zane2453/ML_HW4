@@ -45,9 +45,8 @@ def EM_algo(Data, lamb, P):
 @nb.jit()
 def E_step(Data, lamb, P):
     weight = np.full((60000, 10), 1, dtype=np.float64)  # 60000 * 10
-    temp = 0
     for num in range(60000):
-        #temp = 0
+        temp = 0
         for label in range(10):
             for index, pixel in enumerate(Data[num]):
                 if Data[num][index] == 1:
@@ -80,7 +79,7 @@ def M_step(Data, lamb, P, W):
 def decide_label(Data, Labels, lamb, P):
     mapping = np.zeros(shape=(10, 10), dtype=np.int)
     relation = np.full((1, 10), -1, dtype=np.int)
-    predict = np.full((1, 60000), 0, dtype=np.int)
+    #predict = np.full((1, 60000), 0, dtype=np.int)
 
     for num in range(60000):
         temp = np.zeros(shape=10, dtype=np.float64)
@@ -93,7 +92,7 @@ def decide_label(Data, Labels, lamb, P):
                     accu *= (1 - P[pixel][label])
             temp[label] = lamb[0][label] * accu
         mapping[Labels[num]][np.argmax(temp)] += 1
-        predict[num] = np.argmax(temp)
+        #predict[num] = np.argmax(temp)
 
     for i in range(1, 11):
         ind = np.unravel_index(np.argmax(mapping, axis=None), mapping.shape)
@@ -102,13 +101,13 @@ def decide_label(Data, Labels, lamb, P):
             mapping[ind[0]][j] = -1 * i
             mapping[j][ind[1]] = -1 * i
 
-    for num in range(60000):
-        for i in range(0, 10):
+    '''for num in range(60000):
+        for i in range(10):
             if relation[0][i] == predict[num]:
                 predict[num] = i
-                break
+                break'''
 
-    return relation, predict
+    return relation
 
 def plot_label(Result, relation):
     for label in range(10):
@@ -125,7 +124,7 @@ def plot_label(Result, relation):
         print()
 
 
-def confusion_matrix(Labels, Predicts):
+'''def confusion_matrix(Labels, Predicts):
     error = 0
 
     for label in range(10):
@@ -151,10 +150,61 @@ def confusion_matrix(Labels, Predicts):
         print(f"Isn't number {label}             {fn:5d}                    {tn:5d}")
         sensitivity = tp / (tp + fp)
         specificity = tn / (fn + tn)
-        print(f"Sensitivity (Successfully predict number {label}): ", sensitivity)
+        print(f"\nSensitivity (Successfully predict number {label}): ", sensitivity)
         print(f"Sepcificity (Successfully not predict number {label}): ", specificity)
 
+    return error'''
+
+@nb.jit
+def confusion_matrix(Data, Labels, P, lamb, relation):
+    error = 0
+    confusion_matrix = np.zeros(shape=(10, 2, 2), dtype=np.int)
+
+    for num in range(60000):
+        temp = np.zeros(shape=10, dtype=np.float64)
+        for label in range(10):
+            accu = float(1)
+            for pixel in range(28 * 28):
+                if Data[num][pixel] == 1:
+                    accu *= P[pixel][label]
+                else:
+                    accu *= (1 - P[pixel][label])
+            temp[label] = lamb[0][label] * accu
+        predict = np.argmax(temp)
+        for i in range(10):
+            if relation[0][i] == predict:
+                predict = i
+                break
+        for k in range(10):
+            if Labels[num] == k:
+                if predict == k:
+                    confusion_matrix[k][0][0] += 1
+                else:
+                    confusion_matrix[k][0][1] += 1
+                    error += 1
+            else:
+                if predict == k:
+                    confusion_matrix[k][1][0] += 1
+                    error += 1
+                else:
+                    confusion_matrix[k][1][1] += 1
+
+    print_confusion(confusion_matrix)
+
     return error
+
+def print_confusion(confusion_matrix):
+    for label in range(10):
+        print("\n---------------------------------------------------------------\n")
+        print(f"Confusion Matrix {label}:")
+        print(f"                Predict number {label}      Predict not number {label}")
+        print(f"Is number {label}                {confusion_matrix[label][0][0]:5d}                    {confusion_matrix[label][0][1]:5d}")
+        print(f"Isn't number {label}             {confusion_matrix[label][1][0]:5d}                    {confusion_matrix[label][1][1]:5d}")
+        sensitivity = confusion_matrix[label][0][0] / (confusion_matrix[label][0][0] + confusion_matrix[label][0][1])
+        specificity = confusion_matrix[label][1][1] / (confusion_matrix[label][1][0] + confusion_matrix[label][1][1])
+        print(f"\nSensitivity (Successfully predict number {label}): ", sensitivity)
+        print(f"Sepcificity (Successfully not predict number {label}): ", specificity)
+
 
 if __name__ == "__main__":
     train_images = read_file(train_image_path, 'image') # 60000 * 784
@@ -178,9 +228,9 @@ if __name__ == "__main__":
         pre_probability = np.copy(probability)
         lamb, probability = EM_algo(train_images, lamb, probability)
 
-    relation, predict = decide_label(train_images, train_labels, lamb, probability)
+    relation = decide_label(train_images, train_labels, lamb, probability)
     plot_label(probability, relation)
 
-    error = confusion_matrix(train_labels, predict)
-    print(f"Total iteration to converge: {iteration}")
+    error = confusion_matrix(train_images, train_labels, probability, lamb, relation)
+    print(f"\nTotal iteration to converge: {iteration}")
     print(f"Total error rate: {error / 600000}")
