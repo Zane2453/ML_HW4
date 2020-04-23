@@ -24,4 +24,4 @@ python3 main.py
 
 ## Reference
 - https://github.com/luk1684tw/ML_HW4/blob/master/hw4.py
-- https://github.com/leeang6969/Machine-Learning-2019-Spring-NCTU/blob/master/Lab4/hw4_logistic_regression.py
+- https://github.com/leeang6969/Machine-Learning-2019-Spring-NCTU/tree/master/Lab4
