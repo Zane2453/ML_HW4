@@ -212,7 +212,8 @@ if __name__ == "__main__":
     train_images = train_images // 128
 
     lamb = np.full((1, 10), 0.1, dtype=np.float64)  # 1 * 10
-    probability = np.random.rand(28 * 28, 10).astype(np.float64)    # 784 * 10
+    #probability = np.random.rand(28 * 28, 10).astype(np.float64)    # 784 * 10
+    probability = np.random.uniform(0.35, 0.65, (784, 10))  # 784 * 10
     pre_probability = np.copy(probability)
     iteration = 0
 
