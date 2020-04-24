@@ -183,7 +183,7 @@ if __name__ == "__main__":
         print(f"No. of Iteration: {iteration}, Difference: {difference}\n")
         print('------------------------------\n')
 
-        if difference < 0.1:
+        if difference < 5:
             break
         pre_probability = np.copy(probability)
         lamb, probability = EM_algo(train_images, lamb, probability)
