@@ -79,7 +79,6 @@ def M_step(Data, lamb, P, W):
 def decide_label(Data, Labels, lamb, P):
     mapping = np.zeros(shape=(10, 10), dtype=np.int)
     relation = np.full((1, 10), -1, dtype=np.int)
-    #predict = np.full((1, 60000), 0, dtype=np.int)
 
     for num in range(60000):
         temp = np.zeros(shape=10, dtype=np.float64)
@@ -92,7 +91,6 @@ def decide_label(Data, Labels, lamb, P):
                     accu *= (1 - P[pixel][label])
             temp[label] = lamb[0][label] * accu
         mapping[Labels[num]][np.argmax(temp)] += 1
-        #predict[num] = np.argmax(temp)
 
     for i in range(1, 11):
         ind = np.unravel_index(np.argmax(mapping, axis=None), mapping.shape)
@@ -100,12 +98,6 @@ def decide_label(Data, Labels, lamb, P):
         for j in range(0, 10):
             mapping[ind[0]][j] = -1 * i
             mapping[j][ind[1]] = -1 * i
-
-    '''for num in range(60000):
-        for i in range(10):
-            if relation[0][i] == predict[num]:
-                predict[num] = i
-                break'''
 
     return relation
 
@@ -123,41 +115,9 @@ def plot_label(Result, relation):
                 print(row)
         print()
 
-
-'''def confusion_matrix(Labels, Predicts):
-    error = 0
-
-    for label in range(10):
-        tp, fp, fn, tn = 0, 0, 0, 0
-        for num in range(60000):
-            if Labels[num] == label:
-                if Predicts[num] == label:
-                    tp += 1
-                else:
-                    fp += 1
-                    error += 1
-            else:
-                if Predicts[num] == label:
-                    fn += 1
-                    error += 1
-                else:
-                    tn += 1
-
-        print("\n---------------------------------------------------------------\n")
-        print(f"Confusion Matrix {label}:")
-        print(f"                Predict number {label}      Predict not number {label}")
-        print(f"Is number {label}                {tp:5d}                    {fp:5d}")
-        print(f"Isn't number {label}             {fn:5d}                    {tn:5d}")
-        sensitivity = tp / (tp + fp)
-        specificity = tn / (fn + tn)
-        print(f"\nSensitivity (Successfully predict number {label}): ", sensitivity)
-        print(f"Sepcificity (Successfully not predict number {label}): ", specificity)
-
-    return error'''
-
 @nb.jit
 def confusion_matrix(Data, Labels, P, lamb, relation):
-    error = 0
+    correct = 0
     confusion_matrix = np.zeros(shape=(10, 2, 2), dtype=np.int)
 
     for num in range(60000):
@@ -178,20 +138,19 @@ def confusion_matrix(Data, Labels, P, lamb, relation):
         for k in range(10):
             if Labels[num] == k:
                 if predict == k:
+                    correct += 1
                     confusion_matrix[k][0][0] += 1
                 else:
                     confusion_matrix[k][0][1] += 1
-                    error += 1
             else:
                 if predict == k:
                     confusion_matrix[k][1][0] += 1
-                    error += 1
                 else:
                     confusion_matrix[k][1][1] += 1
 
     print_confusion(confusion_matrix)
 
-    return error
+    return correct
 
 def print_confusion(confusion_matrix):
     for label in range(10):
@@ -224,7 +183,7 @@ if __name__ == "__main__":
         print(f"No. of Iteration: {iteration}, Difference: {difference}\n")
         print('------------------------------\n')
 
-        if np.allclose(probability, pre_probability):
+        if difference < 0.1:
             break
         pre_probability = np.copy(probability)
         lamb, probability = EM_algo(train_images, lamb, probability)
@@ -232,6 +191,6 @@ if __name__ == "__main__":
     relation = decide_label(train_images, train_labels, lamb, probability)
     plot_label(probability, relation)
 
-    error = confusion_matrix(train_images, train_labels, probability, lamb, relation)
+    correct = confusion_matrix(train_images, train_labels, probability, lamb, relation)
     print(f"\nTotal iteration to converge: {iteration}")
-    print(f"Total error rate: {error / 600000}")
+    print(f"Total error rate: {(60000 - correct) / 60000}")
