@@ -1,10 +1,7 @@
 import struct
 
-import random
-from math import log, sqrt
 import numpy as np
 import numba as nb
-import matplotlib.pyplot as plt
 
 train_image_path = './train-images-idx3-ubyte'
 train_label_path = './train-labels-idx1-ubyte'
@@ -183,7 +180,7 @@ if __name__ == "__main__":
         print(f"No. of Iteration: {iteration}, Difference: {difference}\n")
         print('------------------------------\n')
 
-        if difference < 5:
+        if difference < 1:
             break
         pre_probability = np.copy(probability)
         lamb, probability = EM_algo(train_images, lamb, probability)
