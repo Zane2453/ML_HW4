@@ -79,6 +79,8 @@ def print_result(method, Weight, Predict, Label, num):
 def plot_result(Data, Gradient, Newton, num):
     plt.subplot(1,3,1)
     plt.title('Ground Truth')
+    plt.xticks(fontsize = 6)
+    plt.yticks(fontsize = 6)
     plt.scatter(Data[:num, 1], Data[:num, 2], s=15, c='r')
     plt.scatter(Data[num:, 1], Data[num:, 2], s=15, c='b')
 
@@ -94,6 +96,8 @@ def plot_result(Data, Gradient, Newton, num):
 
     plt.subplot(1, 3, 2)
     plt.title('Gradient descent')
+    plt.xticks(fontsize = 6)
+    plt.yticks(fontsize = 6)
     plt.scatter(cluster1[:, 1], cluster1[:, 2], s=15, c='r')
     plt.scatter(cluster2[:, 1], cluster2[:, 2], s=15, c='b')
 
@@ -109,6 +113,8 @@ def plot_result(Data, Gradient, Newton, num):
 
     plt.subplot(1, 3, 3)
     plt.title("Newton's Method")
+    plt.xticks(fontsize = 6)
+    plt.yticks(fontsize = 6)
     plt.scatter(cluster1[:, 1], cluster1[:, 2], s=15, c='r')
     plt.scatter(cluster2[:, 1], cluster2[:, 2], s=15, c='b')
 

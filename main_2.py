@@ -151,15 +151,15 @@ def confusion_matrix(Data, Labels, P, lamb, relation):
 
 def print_confusion(confusion_matrix):
     for label in range(10):
-        print("\n---------------------------------------------------------------\n")
+        print("------------------------------------------------------------\n")
         print(f"Confusion Matrix {label}:")
         print(f"                Predict number {label}      Predict not number {label}")
-        print(f"Is number {label}                {confusion_matrix[label][0][0]:5d}                    {confusion_matrix[label][0][1]:5d}")
-        print(f"Isn't number {label}             {confusion_matrix[label][1][0]:5d}                    {confusion_matrix[label][1][1]:5d}")
+        print(f"Is number {label}                {confusion_matrix[label][0][0]:5d}                     {confusion_matrix[label][0][1]:5d}")
+        print(f"Isn't number {label}             {confusion_matrix[label][1][0]:5d}                     {confusion_matrix[label][1][1]:5d}")
         sensitivity = confusion_matrix[label][0][0] / (confusion_matrix[label][0][0] + confusion_matrix[label][0][1])
         specificity = confusion_matrix[label][1][1] / (confusion_matrix[label][1][0] + confusion_matrix[label][1][1])
-        print(f"\nSensitivity (Successfully predict number {label}): ", sensitivity)
-        print(f"Sepcificity (Successfully not predict number {label}): ", specificity)
+        print(f"\nSensitivity (Successfully predict number {label}): {sensitivity}")
+        print(f"Sepcificity (Successfully not predict number {label}): {specificity}\n")
 
 
 if __name__ == "__main__":
@@ -178,7 +178,7 @@ if __name__ == "__main__":
         difference = np.sum(np.sum(np.abs(probability - pre_probability), axis=0))
         iteration += 1
         print(f"No. of Iteration: {iteration}, Difference: {difference}\n")
-        print('------------------------------\n')
+        print('------------------------------------------------------------\n')
 
         if difference < 1:
             break
@@ -189,5 +189,5 @@ if __name__ == "__main__":
     plot_label(probability, relation)
 
     correct = confusion_matrix(train_images, train_labels, probability, lamb, relation)
-    print(f"\nTotal iteration to converge: {iteration}")
+    print(f"Total iteration to converge: {iteration}")
     print(f"Total error rate: {(60000 - correct) / 60000}")
